@@ -9,7 +9,7 @@ module.exports =(sequelize, DataTypes) => {
           notEmpty: true
         }
       },
-      LastName: {
+      lastName: {
         type: DataTypes.STRING,
         allowNull: false,
         validate: {
