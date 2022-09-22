@@ -7,6 +7,7 @@ const cors = require('cors');
 const morgan = require('morgan');
 
 const authRoute = require('./routes/authRoute');
+const userRoute = require('./routes/userRoute');
 const notFound = require('./middlewares/notFound');
 const error = require('./middlewares/error');
 
@@ -18,10 +19,11 @@ if (process.env.NODE_ENV === 'development') {
 }
   
 app.use(cors());
-app.use(express.json());
+app.use(express.json()); //จะ handle ข้อมูลพวก string แต่ถ้าจะเป็นพวก binary เช่น file/pic จะใช้ multer/ formidable/ busboy
 app.use(express.urlencoded({ extended: false }));
 
-app.use('/auth', authRoute)
+app.use('/auth', authRoute);
+app.use('/users', userRoute);
 
 app.use(notFound);
 app.use(error);
