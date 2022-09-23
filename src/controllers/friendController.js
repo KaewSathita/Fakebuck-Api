@@ -1,5 +1,7 @@
 const { Op } = require('sequelize');
 const { Friend } = require('../models');
+const AppError = require('../utils/appError')
+const {FRIEND_PENDING} = require('../config/constants')
 
 exports.deleteFriend = async ( req, res, next ) => {
   try {
@@ -16,6 +18,41 @@ exports.deleteFriend = async ( req, res, next ) => {
     });
     res.status(204).json();
   } catch(err) {
+    next(err)
+  }
+}
+
+exports.createFriend = async (req, res, next) => {
+  try {
+    const { friendId } = req.params;
+    const existFriend = await Friend.findOne ({
+    where: { 
+      [Op.or] : [
+        { requesterId: req.user.id, accepterId: friendId },
+        { requesterId: friendId, accepterId: req.user.id }
+      ]
+    }
+  });
+
+    if (existFriend) {
+      throw new AppError('already friend or pending', 400)
+    }
+
+    await Friend.create({ 
+      status: FRIEND_PENDING, 
+      requesterId: req.user.id, 
+      accepterId: friendId
+    });
+
+    res.status(200).json({ message: 'success add friend'})
+  } catch (err){
+    next(err)
+  }
+}
+exports.updateFriend = async (req, res, next) => {
+  try {
+
+  } catch (err){
     next(err)
   }
 }
