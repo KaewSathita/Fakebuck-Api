@@ -1,5 +1,5 @@
 // const { sequelize } = require('./models');
-// sequelize.sync()
+// sequelize.sync({alter:true})
 
 require('dotenv').config(); 
 const express = require('express');
@@ -8,6 +8,7 @@ const morgan = require('morgan');
 
 const authRoute = require('./routes/authRoute');
 const friendRoute = require('./routes/friendRoute');
+const postRoute = require('./routes/postRoute');
 const userRoute = require('./routes/userRoute');
 const notFound = require('./middlewares/notFound');
 const error = require('./middlewares/error');
@@ -27,6 +28,7 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use('/auth', authRoute);
 app.use('/friends', authenticate, friendRoute);
+app.use('/posts', authenticate, postRoute);
 app.use('/users', authenticate, userRoute);
 
 app.use(notFound);
