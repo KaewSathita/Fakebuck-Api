@@ -1,7 +1,7 @@
 const fs = require('fs');
 const AppError = require('../utils/appError');
 const cloudinary = require('../utils/cloudinary');
-const { Post, User, Like, Comment } = require('../models');
+const { Post, User, Like, Comment, sequelize } = require('../models');
 const postService = require('../services/postService');
 
 exports.createPost = async (req, res, next) => {
@@ -46,5 +46,26 @@ exports.getUserPosts = async (req, res, next) => {
     res.status(200).json({ posts });
   } catch (err) {
     next(err);
+  }
+};
+
+exports.deletePost = async ( req, res, next ) => {
+  try {
+    t = await sequelize.transaction();
+    const post = await Post.findOne({ where: {id: req.params.id } });
+    if(!post) {
+      throw new AppError('post was not found', 400);
+
+    }
+    if (req.user.id !== post.userId) {
+      throw new AppError('no permission to delete', 403)
+    }
+    await Comment.destroy({ where: { postId: post.id }, transaction: t });
+    await Like.destroy({ where: { postId: post.id }, transaction: t });
+    await post.destroy({ transaction: t })
+    res.status(200).json({ message: 'success delete' });
+   } catch (err) {
+    await t.rollback();
+    next (err);
   }
 };
